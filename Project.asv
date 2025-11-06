@@ -19,15 +19,15 @@ kt = 0.3233; %Nm/A
 kb = 0.4953; %Vs/rad
 R = 5.2628; %ohms
 
-r = 21; %mm (~42mm diameter)
-L = 197; %mm (from center orange to end of black board)
+r = 0.021; %m (~42mm diameter)
+L = 0.197; %m (from center orange to end of black board)
 g = 9.8; % meters/sec^2
 
-mp = 326; %grams
-mw = 14.17; %grams
+mp = 0.326; %Kgrams
+mw = 0.01417; %Kgrams
 Ic = 0.5*mw*(r^2); %1/2 * mw *radius^2
 %%%%%%^do we multiply by 2 because 2 wheels????
-Ip = ; %1/3 * mp * L^2
+Ip = mp*(L^2)/3; %1/3 * mp * L^2
 
 
 Z = Ic*Ip + Ic*L^2*mp + Ip*mp*r^2 + Ip*mw*r^2 + L^2*mp*mw*r^2;
@@ -50,7 +50,7 @@ num43_a = [];
 num44_a = -(kb*kt*(mp*L^2 + mp*r*L + Ip));
 
 %Defining the matrices A, B, C, and D
-A_b = [0 1 0 0; num21_a/Z num22_a/(R*Z) 0 num24_a/(R*r*Z) ; 0 0 0 1; num41_a/Z num42_a/(R*Z) 0 num44_a/(R*Z)]
+A_b = [0 1 0 0; num21_a/Z num22_a/(R*Z) 0 num24_a/(R*r*Z) ; 0 0 0 1; num41_a/Z num42_a/(R*Z) 0 num44_a/(R*Z)];
 B_b = [0; num2_b/den1_b ; 0; num4_b/den1_b];
 C_b = [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1];
 D_b = [0; 0; 0; 0];
@@ -87,7 +87,7 @@ D_b = [0; 0; 0; 0];
 
 [tfnum,tfden] = ss2tf(A_b,B_b,C_b,D_b);
 
-tf1 = tf(tfnum(1,:),tfden);
+tf1 = tf(tfnum(1,:),tfden)
 tf2 = tf(tfnum(2,:),tfden);
 tf3 = tf(tfnum(3,:),tfden);
 tf4 = tf(tfnum(4,:),tfden);
@@ -95,17 +95,17 @@ tf4 = tf(tfnum(4,:),tfden);
 %% Step 4: Characteristic Polynomial and Eigenvalues
 % Find the characteristic polynomial and eigenvalues of matrix A.
 
-charPoly = [];
-rootPoly = [];
-eigA_b = 0;
+charPoly = poly(A_b)
+rootPoly = pole(tf1); %same for all 4 tf
+eigA_b = eig(A_b);
 
 %% Step 5: Check for Stability
 % Is the system asymptotically stable? Is it marginally stable? Explain why.
 
 if eigA_b < 0
-    fprintf('The system is asymptotically stable')
+    fprintf('The system is asymptotically stable\n')
 else
-    fprintf('The system is not asymptotically stable')
+    fprintf('The system is not asymptotically stable\n')
 end
 
 %% Step 6:  Check Transfer Function for Stability
@@ -114,9 +114,9 @@ end
 poles_tf1 = pole(tf1);
 
 if poles_tf1 < 0
-    fprintf('The system is BIBO stable')
+    fprintf('The system is BIBO stable\n')
 else
-    fprintf('The system is not BIBO stable')
+    fprintf('The system is not BIBO stable\n')
 end
 
 
@@ -128,9 +128,9 @@ ctrb_b = ctrb(A_b,B_b);
 ctrb_b_rank = rank(ctrb_b);
 
 if ctrb_b_rank < length(A_b)
-    fprintf('The system is not controllable')
+    fprintf('The system is not controllable\n')
 else
-    fprintf('The system is controllable')
+    fprintf('The system is controllable\n')
 end
 
 %% Step 8: Check for Observability
@@ -141,15 +141,30 @@ obsv_b = obsv(A_b,C_b);
 obsv_b_rank = rank(obsv_b);
 
 if obsv_b_rank < length(A_b)
-    fprintf('The system is not observable')
+    fprintf('The system is not observable\n')
 else
-    fprintf('The system is observable')
+    fprintf('The system is observable\n')
 end
 
 %% Step 9:  Transform into Canonical Form
 % Transform the matrices into CCF and OCF. Note matlab returns the
 % observable canonical form when given companion.
 
+% CCF = obsv(A_b,C_b);
+sys = ss(A_b,B_b,C_b,D_b);
+OCF = compreal(sys,"c");
+OCF.A = OCF.A';
+OCF.B = [0;0;0;1];
+OCF.C(1,:) = flip(tfnum(1,2:5));
+OCF.C(2,:) = flip(tfnum(2,2:5));
+OCF.C(3,:) = flip(tfnum(3,2:5));
+OCF.C(4,:) = flip(tfnum(4,2:5));
+OCF
+
+
+% minimum controllable and observable realization 
+% [A_bmin, B_bmin, C_bmin, D_bmin] = minreal(A_b, B_b, C_b, D_b);
+% sys1_min = ss(A_bmin, B_bmin, C_bmin, D_bmin);
 
 
 

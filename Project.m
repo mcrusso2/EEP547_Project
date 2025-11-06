@@ -87,7 +87,7 @@ D_b = [0; 0; 0; 0];
 
 [tfnum,tfden] = ss2tf(A_b,B_b,C_b,D_b);
 
-tf1 = tf(tfnum(1,:),tfden);
+tf1 = tf(tfnum(1,:),tfden)
 tf2 = tf(tfnum(2,:),tfden);
 tf3 = tf(tfnum(3,:),tfden);
 tf4 = tf(tfnum(4,:),tfden);
@@ -150,6 +150,22 @@ end
 % Transform the matrices into CCF and OCF. Note matlab returns the
 % observable canonical form when given companion.
 
+sys = ss(A_b,B_b,C_b,D_b);
+CCF = compreal(sys,"c");
+CCF.A = CCF.A';
+CCF.B = [0;0;0;1];
+CCF.C(1,:) = flip(tfnum(1,2:5));
+CCF.C(2,:) = flip(tfnum(2,2:5));
+CCF.C(3,:) = flip(tfnum(3,2:5));
+CCF.C(4,:) = flip(tfnum(4,2:5));
+
+OCF = ss(CCF.A',CCF.C',CCF.B',CCF.D');
+
+
+
+% minimum controllable and observable realization 
+% [A_bmin, B_bmin, C_bmin, D_bmin] = minreal(A_b, B_b, C_b, D_b);
+% sys1_min = ss(A_bmin, B_bmin, C_bmin, D_bmin);
 
 
 
