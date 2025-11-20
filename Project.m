@@ -97,7 +97,7 @@ tf4 = tf(tfnum(4,:),tfden);
 
 charPoly = poly(A_b);
 rootPoly = pole(tf1); %same for all 4 tf
-eigA_b = eig(A_b);
+eigA_b = eig(A_b)
 
 %% Step 5: Check for Stability
 % Is the system asymptotically stable? Is it marginally stable? Explain why.
@@ -153,7 +153,7 @@ end
 sys = ss(A_b,B_b,C_b,D_b);
 CCF = compreal(sys,"c");
 CCF.A = CCF.A';
-CCF.B = [0;0;0;1];
+CCF.B = flip(CCF.B);
 CCF.C(1,:) = flip(tfnum(1,2:5));
 CCF.C(2,:) = flip(tfnum(2,2:5));
 CCF.C(3,:) = flip(tfnum(3,2:5));
@@ -163,21 +163,17 @@ OCF = ss(CCF.A',CCF.C',CCF.B',CCF.D');
 
 
 
-% minimum controllable and observable realization 
-% [A_bmin, B_bmin, C_bmin, D_bmin] = minreal(A_b, B_b, C_b, D_b);
-% sys1_min = ss(A_bmin, B_bmin, C_bmin, D_bmin);
-
-
-
-
-
 %% Step 10: Designing State Estimator with Pole Placement
 % Develop a closed-loop state estimator (full-dimensional observer) for the open-loop system (no feedback
 % yet) such that the poles of the observer are stable, and the dynamics of the observer is at least 6-8 times
 % faster than the dynamics of the linearized model. Include in your report the value of the estimator gain, L.
 
+new_poles = poles_tf1 - 6*abs(poles_tf1);
+Lgain = place(A_b', C_b', new_poles)';
 
-
+% verifying new poles
+Aob = A_b - Lgain*C_b;
+eig(Aob);
 
 %% Step 11: State Estimator Simulink
 % Develop a Simulink model of the linearized system (open-loop system with full-dimensional observer
@@ -186,6 +182,27 @@ OCF = ss(CCF.A',CCF.C',CCF.B',CCF.D');
 % u(t) = 1, t ≥ 0 is applied at the input. Plot the estimated state-variables and output variables on the same
 % graph.
 
+xS0 = [0;0;0;0]%initial condition of system. Im just assuming zero.
+                % removed ; to make this note noticable
+xM0 = [0; 0; 0; 0];
+
+tspan = 0:0.1:10;
+simout = sim('ProjectStep11.slx', tspan(end));
+
+figure(1);
+subplot(2,1,1); 
+plot(simout.t, simout.x, 'LineWidth', 2.5); 
+hold on; 
+plot(simout.t, simout.x_hat, '-*'); 
+grid on; 
+xlabel('time (sec)'); 
+legend('x_1', 'x_2', 'x_3','x_4', 'x_1_,_o_b_s', 'x_2_,_o_b_s', ... 
+'x_3_,_o_b_s','x_4_,_o_b_s'); 
+subplot(2,1,2); 
+plot(simout.t, simout.y, '-.'); 
+grid on; 
+xlabel('time (sec)'); 
+legend('y_1','y_2','y_3','y_4');
 
 
 
