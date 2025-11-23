@@ -25,21 +25,28 @@ syms R;  % Resistance in ohms
 %% Step 1: Setup System Matrices
 % Simplifying A and B matrices by defining numerator and denumerator
 
-den1_a = Icmw*(Ip*L^2*mp) + (L^2*mp*mw+Ip*(mp+mw))*rw^2;
+den1_a = Icmw*(Ip+L^2*mp) + (L^2*mp*mw + Ip*(mp+mw))*rw^2;
 num1_a = g*L*mp*(Icmw + (mp+mw)*rw^2);
 num2_a = kt*(Icmw + rw*(mw*rw + mp*(L + rw)));
 num3_a = g*L^2*mp^2*rw^2;
-num4_a = kt*rw*(Ip + L*mp*(L+rw));
+num4_a = kt*(Ip + L*mp*(L+rw));
+
+A21 = num1_a/den1_a;
+A22 = -kb*num2_a/(R*den1_a);
+A24 = -kb*num2_a/(R*rw*den1_a);
+A41 = num3_a/den1_a;
+A42 = -kb*rw*num4_a/(R*den1_a);
+A44 = -kb*num4_a/(R*den1_a);
 
 %Defining the matrices A, B, C, and D
 A_b = [0 1 0 0;
-      num1_a/den1_a -kb*num2_a/(R*den1_a) 0 -kb*num2_a/(R*den1_a);
+      A21 A22 0 A24;
       0 0 0 1;
-      num3_a/den1_a -kb*num4_a/(R*den1_a) 0 -kb*num4_a/(R*den1_a)];
+      A41 A42 0 A44];
 B_b = [0;
     -num2_a/(R*den1_a);
     0
-    -num4_a/(R*den1_a)];
+    -num4_a*rw/(R*den1_a)];
 C_b = eye(size(A_b));
 D_b = [0;0;0;0];
 
@@ -117,10 +124,10 @@ disp("B= ");disp(B_b);
 
 [tfnum,tfden] = ss2tf(A_b,B_b,C_b,D_b);
 
-tf1 = tf(tfnum(1,:),tfden);
-tf2 = tf(tfnum(2,:),tfden);
-tf3 = tf(tfnum(3,:),tfden);
-tf4 = tf(tfnum(4,:),tfden);
+tf1 = tf(tfnum(1,:),tfden)
+tf2 = tf(tfnum(2,:),tfden)
+tf3 = tf(tfnum(3,:),tfden)
+tf4 = tf(tfnum(4,:),tfden)
 
 %% Step 4: Characteristic Polynomial and Eigenvalues
 % Find the characteristic polynomial and eigenvalues of matrix A.
@@ -210,7 +217,7 @@ sim("StateEstimator");
 figure(1);
 plot(t, x, 'LineWidth', 2.5);
 hold on;
-plot(t,xhat, '*');
+plot(t,xhat, '*-');
 grid on;
 xlabel('time (sec)');
 title('Observer Step Input');
@@ -297,6 +304,7 @@ grid;
 title("Proportional Gain Controller (No State Estimator)");
 legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l')
 xlabel('Time (sec)')
+
 %% Step 18: Sonar Sensor
 % Use a sonar sensor to implement some type of feedback control. 
 % One option would be to implement an alert system on the balancing MinSeg robot, 
