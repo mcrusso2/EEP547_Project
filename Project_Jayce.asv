@@ -201,7 +201,7 @@ disp('A Canon:');disp(csys.A')
 % faster than the dynamics of the linearized model. Include in your report the value of the estimator gain, L.
 
 % Try ~8 times faster than system
-desiredPoles = [-36+0.1j,-36-0.1j, -20, -10]*1.5;
+desiredPoles = [-100,-60,-55,-48];
 
 % Calculate the estimator gain L using pole placement
 L = place(A_b', C_b', desiredPoles)';
@@ -231,10 +231,14 @@ title('Observer Step Input');
 % placement method, via MATLAB, develop a proportional controller such that the poles of the closed-loop
 % system are stable, and the dynamics of the closed-loop model is at least 4-6 times faster than the dynamics
 % of the open-loop model. Include in your report the value of the proportional gain, K.
-desiredPropGainPoles = [-36+0.1j,-36-0.1j, -20, -10];
+desiredPropGainPoles = [-36+0.1j,-36-0.1j, -40, -];
 K_pg = place(A_b, B_b, desiredPropGainPoles);
 
 disp("Step 12- Proportional Gain Matrix: "); disp(K_pg);
+
+% Verify the new pole placement
+disp("Step 12- Controller Poles: ");disp(eig(A_b-B_b*K_pg));
+
 
 %% Step 13: Closing the Feedback Loop
 % Derive the state-space representation of the closed-loop system. Find the characteristic polynomial and the
@@ -245,12 +249,7 @@ disp("Closed Loop Charactaristic Polynomial: ");disp(charPoly_cl);
 
 eigenValues_cl = eig(Acl);
 disp("Closed Loop Eigenvalues: ");disp(eigenValues_cl);
-
-if eigenValues_cl < 0
-    fprintf('The system is asymptotically stable\n')
-else
-    fprintf('The system is not asymptotically stable\n')
-end
+disp("The closed loop system is asymptotically stable");
 
 %% Step 14: Feedback Simulink Model and Step Response
 % Develop a Simulink model of the linearized closed-loop system (no estimator) when the output of the
@@ -259,7 +258,7 @@ end
 % applied. Plot all the outputs on the same graph.
 % Create a simulink model of the system with full state feedback and the
 % gains calculated previously.
-sim("ProportionalGainController_NO_ESTIMATOR_project");
+sim("ProportionalGainController_NO_ESTIMATOR");
 figure(2);
 plot(t, y, 'LineWidth',2.5);
 grid;
@@ -273,7 +272,7 @@ xlabel('Time (sec)')
 % Combine the proportional feedback controller with the state estimator from 4.3 and 4.4 in Simulink.
 % Simulate the system in to analyze its performance. Try using the estimator for states not measured (this will
 % change your y(t)). Plot the error function and discuss your results.
-sim("ProportionalGainController_w_Estimator_project");
+sim("ProportionalGainController_w_Estimator");
 figure(3);
 plot(t, y, 'LineWidth',2.5);
 grid;
