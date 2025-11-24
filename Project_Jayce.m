@@ -297,12 +297,22 @@ xlabel('Time (sec)');
 % Show that the LQR controller balances your MinSeg robot. 
 % Show you separate Simulink model. 
 % This can be demonstrated in a video and live during the project presentation.
-R = [1]
-Q = diag([1,1,200,10])
+R = [0.5]
+Q = diag([1,1,10000,1])
 KLQR = lqr(A_b, B_b, Q, R);
 disp("KLQR: ");disp(KLQR);
 
 lqr_poles = eig(A_b - B_b*KLQR)
+
+K_pg = KLQR;
+
+sim("ProportionalGainController_NO_ESTIMATOR_project");
+figure(4);
+plot(t, y, 'LineWidth',2.5);
+grid;
+title("LQR (State Estimator)");
+legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l');
+xlabel('Time (sec)');
 
 %% Step 18: Sonar Sensor
 % Use a sonar sensor to implement some type of feedback control. 
