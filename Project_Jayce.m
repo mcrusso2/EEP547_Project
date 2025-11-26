@@ -67,8 +67,11 @@ D_b = [0;0;0;0];
 %  Length to CoG	L	100	mm
 mp_m = 201/1000;
 L_m = 100/1000;
-measured_period = 0.66;
-Ip_m = mp_m * g * L_m * (measured_period / (2 * pi))^2;
+
+%measured_period = 0.66;
+%Ip_m = mp_m * g * L_m * (measured_period / (2 * pi))^2;
+
+Ip_m = mp_m*L_m^2;
 fprintf("Measured Moment of Inertia No Batt: %.3e kg·m²\n", Ip_m);
 
 % With Battery			
@@ -201,7 +204,7 @@ disp('A Canon:');disp(csys.A')
 % faster than the dynamics of the linearized model. Include in your report the value of the estimator gain, L.
 
 % Try ~8 times faster than system
-desiredPoles = [-36+0.1j,-36-0.1j, -20, -10]*1.5;
+desiredPoles = [-24+0.1j,-24-0.1j, -20, -10]*1.5;
 
 % Calculate the estimator gain L using pole placement
 L = place(A_b', C_b', desiredPoles)';
@@ -231,7 +234,7 @@ title('Observer Step Input');
 % placement method, via MATLAB, develop a proportional controller such that the poles of the closed-loop
 % system are stable, and the dynamics of the closed-loop model is at least 4-6 times faster than the dynamics
 % of the open-loop model. Include in your report the value of the proportional gain, K.
-desiredPropGainPoles = [-36+0.1j,-36-0.1j, -20, -10];
+desiredPropGainPoles = [-21, -17, -14, -10];
 K_pg = place(A_b, B_b, desiredPropGainPoles);
 
 disp("Step 12- Proportional Gain Matrix: "); disp(K_pg);
@@ -297,8 +300,9 @@ xlabel('Time (sec)');
 % Show that the LQR controller balances your MinSeg robot. 
 % Show you separate Simulink model. 
 % This can be demonstrated in a video and live during the project presentation.
-R = [0.5]
-Q = diag([1,1,10000,1])
+R = [75];
+
+Q = diag([10000, 1, 500000, 5000]);
 KLQR = lqr(A_b, B_b, Q, R);
 disp("KLQR: ");disp(KLQR);
 
