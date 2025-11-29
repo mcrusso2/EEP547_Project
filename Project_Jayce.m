@@ -11,7 +11,7 @@ clc;
 g = 9.81;
 syms alpha; % Angle between minseg pendulum and vertical axis
 syms x; % traveling distance of the wheel
-syms L; % Distance between wheel center and pendulum com
+syms L; % Distance between wheel center and pendulum CoM
 syms mp; % Mass of Pendulum
 syms Ip; % Moment of inertia at reference
 syms mw; % Mass of the wheel
@@ -51,16 +51,16 @@ C_b = eye(size(A_b));
 D_b = [0;0;0;0];
 
 %% Step 2: Measurements of Minseg
-% Measure the physical parameters of your MinSeg as shown in Figure 2. Find creative ways to measure the
-% weight in grams (home kitchen scale, post office, grocery store, etc.). Create a table to list the values of
-% your measurement in SI unit. Set reference values of (kt, Kb, R) as (kt, Kb, R) = (0.3233 Nm/A, 0.4953
-% Vs/rad, 5.2628 ohms).
-% Example:
-% We used a ramp to measure the wheels acceleration, then backcalculated
-% the moment of inertia. Likewise, we found the pendulum's fundamental
-% frequency, which gave us the period. We then used that to backcalculate
-% the moment of inertia of the pendulum. These steps were excluded from the
-% report to reduce length.
+% Measure the physical parameters of our MinSeg system. The _kt_, _Kb_, and
+% _R_ values were provided for us. The rest of the parameters were
+% calculated using various methods. While lengths and masses were measured
+% with rulers and scales, the hardest to calculate was the moment of
+% inertias. 
+% 
+% The wheel's inertia was calculated using a ramp and finding the
+% acceleration of the wheel. That acceleration was used to backcalculated
+% the the inertia. The pendulum's inertia was calculated by using an
+% equation with relation to its length and mass.
 
 % Without Battery			
 %  Length to CoG (with wheels)	L	95.83	mm
@@ -68,19 +68,16 @@ D_b = [0;0;0;0];
 mp_m = 201/1000;
 L_m = 100/1000;
 
-%measured_period = 0.66;
-%Ip_m = mp_m * g * L_m * (measured_period / (2 * pi))^2;
 
 Ip_m = mp_m*L_m^2;
-fprintf("Measured Moment of Inertia No Batt: %.3e kg·m²\n", Ip_m);
-
 % With Battery			
 %  Length to CoG (with wheels)	L	111.78	mm	
 mp_m_b = 339/1000;
 L_m_b = 111.78/1000;
 measured_period_with_batt = 0.91;
 Ip_m_b = mp_m_b * g * L_m_b * (measured_period_with_batt / (2 * pi))^2;
-fprintf("Measured Moment of Inertia: %.3e kg·m²\n", Ip_m_b);
+%fprintf("Measured Moment of Inertia: %.3e kg·m²\n", Ip_m_b);
+fprintf("Pendulum measured Moment of Inertia No Batt: %.3e kg·m²\n", Ip_m);
 
 % Wheel parameters
 dw_m = 42;                % wheel diameter in mm
@@ -123,7 +120,8 @@ disp("A= ");disp(A_b);
 disp("B= ");disp(B_b);
 			
 %% Step 3: Transfer Function
-% Find the transfer function matrix of the linearized system.
+% Transfer function matrix of the linearized system. The system possesses
+% four transfer functions, all sharing the same denominator.
 
 [tfnum,tfden] = ss2tf(A_b,B_b,C_b,D_b);
 
@@ -133,7 +131,7 @@ tf3 = tf(tfnum(3,:),tfden);
 tf4 = tf(tfnum(4,:),tfden);
 
 %% Step 4: Characteristic Polynomial and Eigenvalues
-% Find the characteristic polynomial and eigenvalues of matrix A.
+% The characteristic polynomial and eigenvalues of matrix A.
 
 charPoly = charpoly(A_b);
 rootPoly = roots(charPoly);
@@ -144,7 +142,10 @@ disp("Roots: ");disp(rootPoly);
 disp("Eigenvalues: ");disp(eigA_b);
 
 %% Step 5: Check for Stability
-% Is the system asymptotically stable? Is it marginally stable? Explain why.
+% Is the system asymptotically stable? Is it marginally stable? It is
+% neither, the system is unstable. The system has four eignvalues, three are
+% negative, while one is positive. This positive eignvalue is the reason the
+% system in unstable.
 
 if eigA_b < 0
     fprintf('The system is asymptotically stable\n')
@@ -153,7 +154,9 @@ else
 end
 
 %% Step 6:  Check Transfer Function for Stability
-% Find the poles of the transfer function. Is the system BIBO stable? Explain why.
+% The system is also not BIBO stable. For this system, the eignvalues and
+% the poles are the same value. Since a single pole is positive, the system
+% is not BIBO stable.
 
 poles_tf1 = pole(tf1);
 
@@ -165,8 +168,11 @@ end
 
 
 %% Step 7: Check for Controllabilty
-% Find the controllability matrix of the linearized system. What is the rank of the controllability matrix? Is the
-% linearized system controllable?
+% To find the controllability of the system, a control matrix must be
+% calculated. Comparing the rank of this matrix with the length of the A
+% matrix will determine controllability. 
+%
+% $$ Uncontrollable - ctrb_rank < length(A) $$
 
 ctrb_b = ctrb(A_b,B_b);
 ctrb_b_rank = rank(ctrb_b);
@@ -178,8 +184,11 @@ else
 end
 
 %% Step 8: Check for Observability
-% Analyze the observability of the linearized system with the output vector as 𝑦 = 𝑥 =[ 𝛼 𝛼̇ 𝑥 𝑥̇]/ . Is the
-% linearized system observable?
+% To find the observability of the system, a observation matrix must be
+% calculated. Comparing the rank of this matrix with the length of the A
+% matrix will determine observability. 
+%
+% $$ Unobservable - obsv_rank < length(A) $$
 
 obsv_b = obsv(A_b,C_b);
 obsv_b_rank = rank(obsv_b);
@@ -191,17 +200,26 @@ else
 end
 
 %% Step 9:  Transform into Canonical Form
-% Transform the matrices into CCF and OCF. Note matlab returns the
-% observable canonical form when given companion.
+% Transforming the state-space matrixes into CCF and OCF.
 sys = ss(A_b, B_b, C_b, D_b);
-csys = canon(sys,'companion');
-disp('A Obs:');disp(csys.A)
-disp('A Canon:');disp(csys.A')
+CCF = compreal(sys,"c");
+CCF.A = CCF.A';
+CCF.B = flip(CCF.B);
+CCF.C(1,:) = flip(tfnum(1,2:5));
+CCF.C(2,:) = flip(tfnum(2,2:5));
+CCF.C(3,:) = flip(tfnum(3,2:5));
+CCF.C(4,:) = flip(tfnum(4,2:5));
+
+OCF = ss(CCF.A',CCF.C',CCF.B',CCF.D');
+
+disp('A Obs:');disp(OCF.A);
+disp('A Cont:');disp(CCF.A);
 
 %% Step 10: Designing State Estimator with Pole Placement
 % Develop a closed-loop state estimator (full-dimensional observer) for the open-loop system (no feedback
 % yet) such that the poles of the observer are stable, and the dynamics of the observer is at least 6-8 times
-% faster than the dynamics of the linearized model. Include in your report the value of the estimator gain, L.
+% faster than the dynamics of the linearized model.
+%  Include in your report the value of the estimator gain, L.
 
 % Try ~8 times faster than system
 desiredPoles = [-24+0.1j,-24-0.1j, -20, -10]*1.5;
@@ -212,7 +230,7 @@ disp('Estimator Gain L:'); disp(L);
 
 % Verify the Pole placement
 A_obs = A_b - L*C_b;
-disp("New Poles: ");eig(A_obs)
+disp("New Poles: ");disp(eig(A_obs));
 
 %% Step 11: State Estimator Simulink
 % Develop a Simulink model of the linearized system (open-loop system with full-dimensional observer
