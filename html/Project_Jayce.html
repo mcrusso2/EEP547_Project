@@ -1,0 +1,996 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>Minseg Robot Control Project EEP 547</title>
+<meta name="generator" content="MATLAB 25.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2025-11-29">
+<meta name="DC.source" content="Project_Jayce.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Minseg Robot Control Project EEP 547</h1>
+<!--introduction-->
+<p>Team Names: Jayce Gaddis &amp; Matthew Russo</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Minseg Parameters</a>
+</li>
+<li>
+<a href="#2">Step 1: Setup System Matrices</a>
+</li>
+<li>
+<a href="#3">Step 2: Measurements of Minseg</a>
+</li>
+<li>
+<a href="#4">Step 3: Transfer Function</a>
+</li>
+<li>
+<a href="#5">Step 4: Characteristic Polynomial and Eigenvalues</a>
+</li>
+<li>
+<a href="#6">Step 5: Check for Stability</a>
+</li>
+<li>
+<a href="#7">Step 6: Check Transfer Function for Stability</a>
+</li>
+<li>
+<a href="#8">Step 7: Check for Controllabilty</a>
+</li>
+<li>
+<a href="#9">Step 8: Check for Observability</a>
+</li>
+<li>
+<a href="#10">Step 9: Transform into Canonical Form</a>
+</li>
+<li>
+<a href="#11">Step 10: Designing State Estimator with Pole Placement</a>
+</li>
+<li>
+<a href="#14">Step 11: State Estimator Simulink</a>
+</li>
+<li>
+<a href="#16">Step 12: Feedback via Pole Placement</a>
+</li>
+<li>
+<a href="#17">Step 13: Closing the Feedback Loop</a>
+</li>
+<li>
+<a href="#18">Step 14: Feedback Simulink Model and Step Response</a>
+</li>
+<li>
+<a href="#19">Step 15: Estimator With Feedback</a>
+</li>
+<li>
+<a href="#22">Step 16: PID Tuning</a>
+</li>
+<li>
+<a href="#23">Step 17: LQR Tuning</a>
+</li>
+<li>
+<a href="#24">Step 18: Sonar Sensor</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Minseg Parameters</h2>
+<pre class="codeinput">
+<span class="comment">%Initializing</span>
+clear;
+close <span class="string">all</span>;
+clc;
+
+<span class="comment">%Defining parameters</span>
+g = 9.81;
+syms <span class="string">alpha</span>; <span class="comment">% Angle between minseg pendulum and vertical axis</span>
+syms <span class="string">x</span>; <span class="comment">% traveling distance of the wheel</span>
+syms <span class="string">L</span>; <span class="comment">% Distance between wheel center and pendulum CoM</span>
+syms <span class="string">mp</span>; <span class="comment">% Mass of Pendulum</span>
+syms <span class="string">Ip</span>; <span class="comment">% Moment of inertia at reference</span>
+syms <span class="string">mw</span>; <span class="comment">% Mass of the wheel</span>
+syms <span class="string">rw</span>; <span class="comment">% Radius of wheel</span>
+syms <span class="string">Icmw</span>; <span class="comment">% Moment of inertia at center of mass of wheel</span>
+syms <span class="string">kt</span>; <span class="comment">% Torque constant in Nm/A</span>
+syms <span class="string">kb</span>; <span class="comment">% Back EMF constant in Vs/rad</span>
+syms <span class="string">R</span>;  <span class="comment">% Resistance in ohms</span>
+</pre>
+<h2 id="2">Step 1: Setup System Matrices</h2>
+<p>Simplifying A and B matrices by defining numerator and denumerator</p>
+<pre class="codeinput">den1_a = Icmw*(Ip+L^2*mp) + (L^2*mp*mw + Ip*(mp+mw))*rw^2;
+num1_a = g*L*mp*(Icmw + (mp+mw)*rw^2);
+num2_a = kt*(Icmw + rw*(mw*rw + mp*(L + rw)));
+num3_a = g*L^2*mp^2*rw^2;
+num4_a = kt*(Ip + L*mp*(L+rw));
+
+A21 = num1_a/den1_a;
+A22 = -kb*num2_a/(R*den1_a);
+A24 = -kb*num2_a/(R*rw*den1_a);
+A41 = num3_a/den1_a;
+A42 = -kb*rw*num4_a/(R*den1_a);
+A44 = -kb*num4_a/(R*den1_a);
+
+<span class="comment">%Defining the matrices A, B, C, and D</span>
+A_b = [0 1 0 0;
+      A21 A22 0 A24;
+      0 0 0 1;
+      A41 A42 0 A44];
+B_b = [0;
+    -num2_a/(R*den1_a);
+    0
+    -num4_a*rw/(R*den1_a)];
+C_b = eye(size(A_b));
+D_b = [0;0;0;0];
+</pre>
+<h2 id="3">Step 2: Measurements of Minseg</h2>
+<p>Measurements the physical parameters of our MinSeg system. The <i>kt</i>, <i>Kb</i>, and <i>R</i> values were provided for us. The rest of the parameters were calculated using various methods. While lengths and masses were measured with rulers and scales, the hardest to calculate was the moment of inertias.</p>
+<p>The wheel's inertia was calculated using a ramp and finding the acceleration of the wheel. That acceleration was used to backcalculated the the inertia. The pendulum's inertia was calculated by using an equation with relation to its length and mass.</p>
+<p>While there are values for both with and without batteries connected, this project operates without the use of batteries.</p>
+<pre class="codeinput">
+<span class="comment">% Without Battery</span>
+<span class="comment">%  Length to CoG (with wheels)	L	95.83	mm</span>
+<span class="comment">%  Length to CoG	L	100	mm</span>
+mp_m = 201/1000;
+L_m = 100/1000;
+
+
+Ip_m = mp_m*L_m^2;
+
+<span class="comment">% With Battery</span>
+<span class="comment">%  Length to CoG (with wheels)	L	111.78	mm</span>
+mp_m_b = 339/1000;
+L_m_b = 111.78/1000;
+measured_period_with_batt = 0.91;
+Ip_m_b = mp_m_b * g * L_m_b * (measured_period_with_batt / (2 * pi))^2;
+<span class="comment">%fprintf("Measured Moment of Inertia: %.3e kg&middot;m&sup2;\n", Ip_m_b);</span>
+fprintf(<span class="string">"Pendulum measured Moment of Inertia No Batt: %.3e kg&middot;m&sup2;\n"</span>, Ip_m);
+
+<span class="comment">% Wheel parameters</span>
+dw_m = 42;                <span class="comment">% wheel diameter in mm</span>
+rw_m = dw_m / 2 / 1000;   <span class="comment">% radius in meters</span>
+
+mw_kg = 18 / 1000;        <span class="comment">% mass in kg</span>
+time_down_ramp_s = 1.89;  <span class="comment">% time to roll distance (s)</span>
+ramp_angle_deg = 3;       <span class="comment">% incline angle (degrees)</span>
+ramp_length_m = 0.508;    <span class="comment">% ramp distance (m)</span>
+
+<span class="comment">% Compute acceleration down the ramp</span>
+a = 2 * ramp_length_m / time_down_ramp_s^2;   <span class="comment">% m/s^2</span>
+
+<span class="comment">% Compute wheel moment of inertia about center (two wheels total)</span>
+Icmw_m = 2 * mw_kg * rw_m^2 * ((g * sind(ramp_angle_deg)) / a - 1);
+fprintf(<span class="string">'Wheel inertia Icmw = %.3e kg&middot;m&sup2;\n'</span>, Icmw_m);
+
+<span class="comment">%  Motor</span>
+<span class="comment">%   Torque Constant	kt	0.3233	Nm/A</span>
+<span class="comment">%   Back EMF	Kb	0.4953	Vs/rad</span>
+<span class="comment">%   Resistance	R	5.2628	ohms</span>
+kt_m = 0.3233;
+kb_m = 0.4953;
+R_m = 5.2628;
+
+<span class="comment">% Build substitution pairs</span>
+sub_pairs = [ mp  Ip   L   mw   rw   Icmw   kt    kb    R ;
+              mp_m  Ip_m  L_m  mw_kg rw_m  Icmw_m   kt_m  kb_m  R_m ];
+
+sub_pairs_batt = [ mp  Ip   L   mw   rw   Icmw   kt    kb    R ;
+              mp_m_b  Ip_m_b  L_m_b  mw_kg rw_m  Icmw_m   kt_m  kb_m  R_m ];
+
+<span class="comment">% Substitute measured values into A and B</span>
+A_b = subs(A_b, sub_pairs(1,:), sub_pairs(2,:));
+B_b = subs(B_b, sub_pairs(1,:), sub_pairs(2,:));
+
+A_b = double(vpa(A_b,14));
+B_b = double(vpa(B_b,14));
+disp(<span class="string">"A= "</span>);disp(A_b);
+disp(<span class="string">"B= "</span>);disp(B_b);
+</pre>
+<pre class="codeoutput">Pendulum measured Moment of Inertia No Batt: 2.010e-03 kg&middot;m&sup2;
+Wheel inertia Icmw = 1.278e-05 kg&middot;m&sup2;
+A= 
+   1.0e+03 *
+
+         0    0.0010         0         0
+    0.0825   -0.0618         0   -2.9451
+         0         0         0    0.0010
+    0.0067   -0.0109         0   -0.5169
+
+B= 
+         0
+ -124.8684
+         0
+  -21.9174
+
+</pre>
+<h2 id="4">Step 3: Transfer Function</h2>
+<p>Transfer function matrix of the linearized system. The system possesses four transfer functions, all sharing the same denominator.</p>
+<pre class="codeinput">[tfnum,tfden] = ss2tf(A_b,B_b,C_b,D_b);
+
+tf1 = tf(tfnum(1,:),tfden)
+tf2 = tf(tfnum(2,:),tfden)
+tf3 = tf(tfnum(3,:),tfden)
+tf4 = tf(tfnum(4,:),tfden)
+</pre>
+<pre class="codeoutput">
+tf1 =
+ 
+                 -124.9 s^2
+  ----------------------------------------
+  s^4 + 578.8 s^3 - 82.47 s^2 - 2.295e04 s
+ 
+Continuous-time transfer function.
+
+tf2 =
+ 
+          -124.9 s^3 - 3.79e-14 s
+  ----------------------------------------
+  s^4 + 578.8 s^3 - 82.47 s^2 - 2.295e04 s
+ 
+Continuous-time transfer function.
+
+tf3 =
+ 
+             -21.92 s^2 + 972.9
+  ----------------------------------------
+  s^4 + 578.8 s^3 - 82.47 s^2 - 2.295e04 s
+ 
+Continuous-time transfer function.
+
+tf4 =
+ 
+            -21.92 s^3 + 972.9 s
+  ----------------------------------------
+  s^4 + 578.8 s^3 - 82.47 s^2 - 2.295e04 s
+ 
+Continuous-time transfer function.
+</pre>
+<h2 id="5">Step 4: Characteristic Polynomial and Eigenvalues</h2>
+<p>The characteristic polynomial and eigenvalues of matrix A.</p>
+<pre class="codeinput">charPoly = charpoly(A_b);
+rootPoly = roots(charPoly);
+eigA_b = eig(A_b);
+
+disp(<span class="string">"Characteristic Polynomial: "</span>); disp(charPoly);
+disp(<span class="string">"Roots: "</span>);disp(rootPoly);
+disp(<span class="string">"Eigenvalues: "</span>);disp(eigA_b);
+</pre>
+<pre class="codeoutput">Characteristic Polynomial: 
+   1.0e+04 *
+
+    0.0001    0.0579   -0.0082   -2.2946         0
+
+Roots: 
+         0
+ -578.8589
+    6.3332
+   -6.2592
+
+Eigenvalues: 
+         0
+ -578.8589
+    6.3332
+   -6.2592
+
+</pre>
+<h2 id="6">Step 5: Check for Stability</h2>
+<p>Is the system asymptotically stable? Is it marginally stable? It is neither, the system is unstable. The system has four eignvalues, three are negative, while one is positive. This positive eignvalue is the reason the system in unstable.</p>
+<pre class="codeinput">
+<span class="keyword">if</span> eigA_b &lt; 0
+    fprintf(<span class="string">'The system is asymptotically stable\n'</span>)
+<span class="keyword">else</span>
+    fprintf(<span class="string">'The system is not asymptotically stable\n'</span>)
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">The system is not asymptotically stable
+</pre>
+<h2 id="7">Step 6: Check Transfer Function for Stability</h2>
+<p>The system is also not BIBO stable. For this system, the eignvalues and the poles are the same value. Since a single pole is positive, the system is not BIBO stable.</p>
+<pre class="codeinput">poles_tf1 = pole(tf1)
+
+<span class="keyword">if</span> poles_tf1 &lt; 0
+    fprintf(<span class="string">'The system is BIBO stable\n'</span>)
+<span class="keyword">else</span>
+    fprintf(<span class="string">'The system is not BIBO stable\n'</span>)
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">
+poles_tf1 =
+
+         0
+ -578.8589
+    6.3332
+   -6.2592
+
+The system is not BIBO stable
+</pre>
+<h2 id="8">Step 7: Check for Controllabilty</h2>
+<p>To find the controllability of the system, a control matrix must be calculated. Comparing the rank of this matrix with the length of the A matrix will determine controllability.</p>
+<p>
+<img src="Project_Jayce_eq07042026539096525775.png" alt="$$ Uncontrollable - ctrbRank < length(A) $$" style="width:235px;height:14px;"></p>
+<pre class="codeinput">ctrb_b = ctrb(A_b,B_b);
+ctrb_b_rank = rank(ctrb_b);
+
+<span class="keyword">if</span> ctrb_b_rank &lt; length(A_b)
+    fprintf(<span class="string">'The system is not controllable\n'</span>)
+<span class="keyword">else</span>
+    fprintf(<span class="string">'The system is controllable\n'</span>)
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">The system is controllable
+</pre>
+<h2 id="9">Step 8: Check for Observability</h2>
+<p>To find the observability of the system, a observation matrix must be calculated. Comparing the rank of this matrix with the length of the A matrix will determine observability.</p>
+<p>
+<img src="Project_Jayce_eq03209926061271267024.png" alt="$$ Unobservable - obsvRank < length(A) $$" style="width:231px;height:14px;"></p>
+<pre class="codeinput">obsv_b = obsv(A_b,C_b);
+obsv_b_rank = rank(obsv_b);
+
+<span class="keyword">if</span> obsv_b_rank &lt; length(A_b)
+    fprintf(<span class="string">'The system is not observable\n'</span>)
+<span class="keyword">else</span>
+    fprintf(<span class="string">'The system is observable\n'</span>)
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">The system is observable
+</pre>
+<h2 id="10">Step 9: Transform into Canonical Form</h2>
+<p>Transforming the state-space matrixes into CCF and OCF.</p>
+<pre class="codeinput">sys = ss(A_b, B_b, C_b, D_b);
+CCF = compreal(sys,<span class="string">"c"</span>);
+CCF.A = CCF.A';
+CCF.B = flip(CCF.B);
+CCF.C(1,:) = flip(tfnum(1,2:5));
+CCF.C(2,:) = flip(tfnum(2,2:5));
+CCF.C(3,:) = flip(tfnum(3,2:5));
+CCF.C(4,:) = flip(tfnum(4,2:5));
+
+OCF = ss(CCF.A',CCF.C',CCF.B',CCF.D');
+
+disp(<span class="string">'A Obs:'</span>);disp(OCF.A);
+disp(<span class="string">'A Cont:'</span>);disp(CCF.A);
+</pre>
+<pre class="codeoutput">A Obs:
+   1.0e+04 *
+
+         0         0         0    0.0000
+    0.0001         0         0    2.2946
+         0    0.0001         0    0.0082
+         0         0    0.0001   -0.0579
+
+A Cont:
+   1.0e+04 *
+
+         0    0.0001         0         0
+         0         0    0.0001         0
+         0         0         0    0.0001
+    0.0000    2.2946    0.0082   -0.0579
+
+</pre>
+<h2 id="11">Step 10: Designing State Estimator with Pole Placement</h2>
+<p>Since the system is unstable, a closed-loop state estimator will be added. This full-dimensional observer will have poles that produce a stable system, by placing them all in the negative feild. As it is estimating the state of the system, these poles are picked to have a faster settling time than the open-loop system. An estimator gain <i>L</i> is calculated.</p>
+<pre class="codeinput">
+<span class="comment">% Try ~8 times faster than</span>
+<span class="comment">% system?????????????????????????????????????????????????????????????????????</span>
+desiredPoles = [-24+0.1j,-24-0.1j, -20, -10]*1.5;
+</pre>
+<p>Estimator gain <i>L</i> using desired pole placement</p>
+<pre class="codeinput">L = place(A_b', C_b', desiredPoles)';
+disp(<span class="string">'Estimator Gain L:'</span>); disp(L);
+</pre>
+<pre class="codeoutput">Estimator Gain L:
+   1.0e+03 *
+
+    0.0360    0.0008         0         0
+    0.0826   -0.0258         0   -2.9451
+         0         0    0.0300    0.0010
+    0.0067   -0.0109         0   -0.5019
+
+</pre>
+<p>Verify the pole placement</p>
+<pre class="codeinput">A_obs = A_b - L*C_b;
+disp(<span class="string">"New Poles: "</span>);disp(eig(A_obs));
+</pre>
+<pre class="codeoutput">New Poles: 
+ -36.0000 + 0.1500i
+ -36.0000 - 0.1500i
+ -30.0000 + 0.0000i
+ -15.0000 + 0.0000i
+
+</pre>
+<h2 id="14">Step 11: State Estimator Simulink</h2>
+<pre class="codeinput">
+<span class="comment">%Plot the estimated state-variables and output variables on the same graph.</span>
+<span class="comment">%I think this counts, but being fair and asking?????????????????????????</span>
+
+<span class="comment">% A simulink model of the linearized system was developed. The output of</span>
+<span class="comment">% the system is fed into the full-dimensional observer. To demonstrate the</span>
+<span class="comment">% values of the system, an input of a unit-step is used, while also</span>
+<span class="comment">% assuming the initial conditions are zero.</span>
+sim(<span class="string">"StateEstimator_project"</span>);
+figure(1);
+subplot(2,1,1);
+plot(t, x, <span class="string">'LineWidth'</span>, 2);
+hold <span class="string">on</span>;
+plot(t,xhat, <span class="string">'*-'</span>);
+grid <span class="string">on</span>;
+xlabel(<span class="string">'time (sec)'</span>);
+legend(<span class="string">'x_1'</span>, <span class="string">'x_2'</span>, <span class="string">'x_3'</span>,<span class="string">'x_4'</span>, <span class="string">'x_1_,_o_b_s'</span>, <span class="string">'x_2_,_o_b_s'</span>, <span class="keyword">...</span>
+<span class="string">'x_3_,_o_b_s'</span>,<span class="string">'x_4_,_o_b_s'</span>);
+title(<span class="string">'System &amp; Observer Step Input'</span>);
+subplot(2,1,2);
+plot(t, y, <span class="string">'-'</span>);
+grid <span class="string">on</span>;
+xlabel(<span class="string">'time (sec)'</span>);
+legend(<span class="string">'y_1'</span>,<span class="string">'y_2'</span>,<span class="string">'y_3'</span>,<span class="string">'y_4'</span>);
+</pre>
+<img vspace="5" hspace="5" src="Project_Jayce_01.png" alt=""> <p>The graphs show that the system is unstable as the values go off to infinity.</p>
+<h2 id="16">Step 12: Feedback via Pole Placement</h2>
+<p>To make the system stable, new poles are selected for the closed-loop model. With the new poles, a proportional gain <i>K</i> can be calculated for the closed-loop modeling. While this gain will be faster than the open-loop system, it will be slower than the observer system.</p>
+<pre class="codeinput">desiredPropGainPoles = [-21, -17, -14, -10];
+K_pg = place(A_b, B_b, desiredPropGainPoles);
+
+disp(<span class="string">"Step 12- Proportional Gain Matrix: "</span>); disp(K_pg);
+</pre>
+<pre class="codeoutput">Step 12- Proportional Gain Matrix: 
+  -20.9615   -2.5068   51.3725   37.8606
+
+</pre>
+<h2 id="17">Step 13: Closing the Feedback Loop</h2>
+<p>Using the proportional gain <i>K</i>, a new state-space matrix must be created to represent the closed-loop system. This new system must then be checked if the new poles allow it to be stable.</p>
+<pre class="codeinput">Acl = A_b - B_b*K_pg;
+charPoly_cl = charpoly(Acl);
+disp(<span class="string">"Closed Loop Charactaristic Polynomial: "</span>);disp(charPoly_cl);
+
+eigenValues_cl = eig(Acl);
+disp(<span class="string">"Closed Loop Eigenvalues: "</span>);disp(eigenValues_cl);
+
+<span class="keyword">if</span> eigenValues_cl &lt; 0
+    fprintf(<span class="string">'The system is asymptotically stable\n'</span>)
+<span class="keyword">else</span>
+    fprintf(<span class="string">'The system is not asymptotically stable\n'</span>)
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">Closed Loop Charactaristic Polynomial: 
+   1.0e+04 *
+
+    0.0001    0.0062    0.1409    1.3888    4.9980
+
+Closed Loop Eigenvalues: 
+  -21.0000
+  -17.0000
+  -14.0000
+  -10.0000
+
+The system is asymptotically stable
+</pre>
+<h2 id="18">Step 14: Feedback Simulink Model and Step Response</h2>
+<p>A simulink model of the linearized closed-loop system was developed, without the state-estimator. Applying the proportional gain <i>K</i> to the system as feed back. To demonstrate the values of the system, an input of a unit-step is used while also assuming the initial conditions are zero.</p>
+<pre class="codeinput">sim(<span class="string">"ProportionalGainController_NO_ESTIMATOR_project"</span>);
+figure(2);
+plot(t, y, <span class="string">'LineWidth'</span>,2.5);
+grid;
+title(<span class="string">"Proportional Gain Controller (No State Estimator)"</span>);
+legend(<span class="string">'x_p_o_s'</span>, <span class="string">'x_v_e_l'</span>, <span class="string">'a_p_o_s'</span>, <span class="string">'a_v_e_l'</span>)
+xlabel(<span class="string">'Time (sec)'</span>)
+</pre>
+<img vspace="5" hspace="5" src="Project_Jayce_02.png" alt=""> <h2 id="19">Step 15: Estimator With Feedback</h2>
+<p>By combining the observer system with the feedback model, the entire system can become a closed-loop model that is based on the estimated states, <i>xhat</i>. The system will be stable with the new poles.</p>
+<p>The error of the system is ploted with the difference between <i>x</i> and <i>xhat</i>.</p>
+<pre class="codeinput">sim(<span class="string">"ProportionalGainController_w_Estimator_project"</span>);
+figure(3);
+subplot(2,1,1);
+plot(t, y, <span class="string">'LineWidth'</span>,2.5);
+grid;
+title(<span class="string">"Proportional Gain Controller (State Estimator)"</span>);
+legend(<span class="string">'x_p_o_s'</span>, <span class="string">'x_v_e_l'</span>, <span class="string">'a_p_o_s'</span>, <span class="string">'a_v_e_l'</span>);
+xlabel(<span class="string">'Time (sec)'</span>);
+subplot(2,1,2);
+plot(t, x_e, <span class="string">'-'</span>);
+grid <span class="string">on</span>;
+title(<span class="string">"Error of states (x - xhat)"</span>);
+xlabel(<span class="string">'time (sec)'</span>);
+legend(<span class="string">'x_p_o_s'</span>, <span class="string">'x_v_e_l'</span>, <span class="string">'a_p_o_s'</span>, <span class="string">'a_v_e_l'</span>);
+</pre>
+<img vspace="5" hspace="5" src="Project_Jayce_03.png" alt=""> <pre class="codeinput">
+<span class="comment">%The low error values show that this closed-loop estimator system is</span>
+<span class="comment">%accurate for all the states.</span>
+</pre>
+<h2 id="22">Step 16: PID Tuning</h2>
+<p>A) Demonstrate the feedback control system using an LQR controller. B) Demonstrate the feedback control system using a PID controller (You could try PI, PD, and PID.). Using the model below, we can use MATLAB's built in PID functions to give us our proportional, integral, and derivative gains. Additionally we can calculate the poles and zeros to see if the system with PID feedback is stable.</p>
+<h2 id="23">Step 17: LQR Tuning</h2>
+<p>Another method of creating the feedback system is to use an LQR controller. By selecting the <i>R</i> and <i>Q</i> values, a new feedback <i>K</i> can be calculated. The MinSeg robot uses this method for operating.</p>
+<pre class="codeinput">R = [75];
+
+Q = diag([10000, 1, 500000, 5000]);
+KLQR = lqr(A_b, B_b, Q, R);
+disp(<span class="string">"KLQR: "</span>);disp(KLQR);
+
+lqr_poles = eig(A_b - B_b*KLQR)
+
+K_pg = KLQR;
+
+sim(<span class="string">"ProportionalGainController_NO_ESTIMATOR_project"</span>);
+figure(4);
+plot(t, y, <span class="string">'LineWidth'</span>,2.5);
+grid;
+title(<span class="string">"LQR (State Estimator)"</span>);
+legend(<span class="string">'x_p_o_s'</span>, <span class="string">'x_v_e_l'</span>, <span class="string">'a_p_o_s'</span>, <span class="string">'a_v_e_l'</span>);
+xlabel(<span class="string">'Time (sec)'</span>);
+</pre>
+<pre class="codeoutput">KLQR: 
+  -93.3999  -13.3790   81.6497   74.2481
+
+
+lqr_poles =
+
+ -606.0488
+   -7.6888
+   -4.7224
+   -3.6098
+
+</pre>
+<img vspace="5" hspace="5" src="Project_Jayce_04.png" alt=""> <h2 id="24">Step 18: Sonar Sensor</h2>
+<p>Use a sonar sensor to implement some type of feedback control. One option would be to implement an alert system on the balancing MinSeg robot, which generates sound as the distance between MinSeg robot and an object is less than certain threshold by using an ultrasonic sensor and a speaker. As the balancing robot approaches an object, the alert system should increase the volume, frequency, or tone of an alerting sound. This part is open for you to be creative to use the sonar sensor. Demonstrate this in a video or live during the project presentation.</p>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2025b</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% Minseg Robot Control Project EEP 547
+% Team Names: Jayce Gaddis & Matthew Russo
+
+%% Minseg Parameters
+%Initializing
+clear;
+close all;
+clc;
+
+%Defining parameters
+g = 9.81;
+syms alpha; % Angle between minseg pendulum and vertical axis
+syms x; % traveling distance of the wheel
+syms L; % Distance between wheel center and pendulum CoM
+syms mp; % Mass of Pendulum
+syms Ip; % Moment of inertia at reference
+syms mw; % Mass of the wheel
+syms rw; % Radius of wheel
+syms Icmw; % Moment of inertia at center of mass of wheel
+syms kt; % Torque constant in Nm/A
+syms kb; % Back EMF constant in Vs/rad
+syms R;  % Resistance in ohms
+
+
+%% Step 1: Setup System Matrices
+% Simplifying A and B matrices by defining numerator and denumerator
+
+den1_a = Icmw*(Ip+L^2*mp) + (L^2*mp*mw + Ip*(mp+mw))*rw^2;
+num1_a = g*L*mp*(Icmw + (mp+mw)*rw^2);
+num2_a = kt*(Icmw + rw*(mw*rw + mp*(L + rw)));
+num3_a = g*L^2*mp^2*rw^2;
+num4_a = kt*(Ip + L*mp*(L+rw));
+
+A21 = num1_a/den1_a;
+A22 = -kb*num2_a/(R*den1_a);
+A24 = -kb*num2_a/(R*rw*den1_a);
+A41 = num3_a/den1_a;
+A42 = -kb*rw*num4_a/(R*den1_a);
+A44 = -kb*num4_a/(R*den1_a);
+
+%Defining the matrices A, B, C, and D
+A_b = [0 1 0 0;
+      A21 A22 0 A24;
+      0 0 0 1;
+      A41 A42 0 A44];
+B_b = [0;
+    -num2_a/(R*den1_a);
+    0
+    -num4_a*rw/(R*den1_a)];
+C_b = eye(size(A_b));
+D_b = [0;0;0;0];
+
+%% Step 2: Measurements of Minseg
+% Measurements the physical parameters of our MinSeg system. The _kt_, _Kb_, and
+% _R_ values were provided for us. The rest of the parameters were
+% calculated using various methods. While lengths and masses were measured
+% with rulers and scales, the hardest to calculate was the moment of
+% inertias. 
+% 
+% The wheel's inertia was calculated using a ramp and finding the
+% acceleration of the wheel. That acceleration was used to backcalculated
+% the the inertia. The pendulum's inertia was calculated by using an
+% equation with relation to its length and mass.
+% 
+% While there are values for both with and without batteries connected,
+% this project operates without the use of batteries.
+
+% Without Battery			
+%  Length to CoG (with wheels)	L	95.83	mm
+%  Length to CoG	L	100	mm
+mp_m = 201/1000;
+L_m = 100/1000;
+
+
+Ip_m = mp_m*L_m^2;
+
+% With Battery			
+%  Length to CoG (with wheels)	L	111.78	mm	
+mp_m_b = 339/1000;
+L_m_b = 111.78/1000;
+measured_period_with_batt = 0.91;
+Ip_m_b = mp_m_b * g * L_m_b * (measured_period_with_batt / (2 * pi))^2;
+%fprintf("Measured Moment of Inertia: %.3e kg·m²\n", Ip_m_b);
+fprintf("Pendulum measured Moment of Inertia No Batt: %.3e kg·m²\n", Ip_m);
+
+% Wheel parameters
+dw_m = 42;                % wheel diameter in mm
+rw_m = dw_m / 2 / 1000;   % radius in meters
+
+mw_kg = 18 / 1000;        % mass in kg
+time_down_ramp_s = 1.89;  % time to roll distance (s)
+ramp_angle_deg = 3;       % incline angle (degrees)
+ramp_length_m = 0.508;    % ramp distance (m)
+
+% Compute acceleration down the ramp
+a = 2 * ramp_length_m / time_down_ramp_s^2;   % m/s^2
+
+% Compute wheel moment of inertia about center (two wheels total)
+Icmw_m = 2 * mw_kg * rw_m^2 * ((g * sind(ramp_angle_deg)) / a - 1);
+fprintf('Wheel inertia Icmw = %.3e kg·m²\n', Icmw_m);
+
+%  Motor			
+%   Torque Constant	kt	0.3233	Nm/A
+%   Back EMF	Kb	0.4953	Vs/rad
+%   Resistance	R	5.2628	ohms
+kt_m = 0.3233;
+kb_m = 0.4953;
+R_m = 5.2628;
+
+% Build substitution pairs
+sub_pairs = [ mp  Ip   L   mw   rw   Icmw   kt    kb    R ;
+              mp_m  Ip_m  L_m  mw_kg rw_m  Icmw_m   kt_m  kb_m  R_m ];
+
+sub_pairs_batt = [ mp  Ip   L   mw   rw   Icmw   kt    kb    R ;
+              mp_m_b  Ip_m_b  L_m_b  mw_kg rw_m  Icmw_m   kt_m  kb_m  R_m ];
+
+% Substitute measured values into A and B
+A_b = subs(A_b, sub_pairs(1,:), sub_pairs(2,:));
+B_b = subs(B_b, sub_pairs(1,:), sub_pairs(2,:));
+
+A_b = double(vpa(A_b,14));
+B_b = double(vpa(B_b,14));
+disp("A= ");disp(A_b);
+disp("B= ");disp(B_b);
+			
+%% Step 3: Transfer Function
+% Transfer function matrix of the linearized system. The system possesses
+% four transfer functions, all sharing the same denominator.
+
+[tfnum,tfden] = ss2tf(A_b,B_b,C_b,D_b);
+
+tf1 = tf(tfnum(1,:),tfden)
+tf2 = tf(tfnum(2,:),tfden)
+tf3 = tf(tfnum(3,:),tfden)
+tf4 = tf(tfnum(4,:),tfden)
+
+%% Step 4: Characteristic Polynomial and Eigenvalues
+% The characteristic polynomial and eigenvalues of matrix A.
+
+charPoly = charpoly(A_b);
+rootPoly = roots(charPoly);
+eigA_b = eig(A_b);
+
+disp("Characteristic Polynomial: "); disp(charPoly);
+disp("Roots: ");disp(rootPoly);
+disp("Eigenvalues: ");disp(eigA_b);
+
+%% Step 5: Check for Stability
+% Is the system asymptotically stable? Is it marginally stable? It is
+% neither, the system is unstable. The system has four eignvalues, three are
+% negative, while one is positive. This positive eignvalue is the reason the
+% system in unstable.
+
+if eigA_b < 0
+    fprintf('The system is asymptotically stable\n')
+else
+    fprintf('The system is not asymptotically stable\n')
+end
+
+%% Step 6:  Check Transfer Function for Stability
+% The system is also not BIBO stable. For this system, the eignvalues and
+% the poles are the same value. Since a single pole is positive, the system
+% is not BIBO stable.
+
+poles_tf1 = pole(tf1)
+
+if poles_tf1 < 0
+    fprintf('The system is BIBO stable\n')
+else
+    fprintf('The system is not BIBO stable\n')
+end
+
+
+%% Step 7: Check for Controllabilty
+% To find the controllability of the system, a control matrix must be
+% calculated. Comparing the rank of this matrix with the length of the A
+% matrix will determine controllability. 
+%
+% $$ Uncontrollable - ctrbRank < length(A) $$
+
+ctrb_b = ctrb(A_b,B_b);
+ctrb_b_rank = rank(ctrb_b);
+
+if ctrb_b_rank < length(A_b)
+    fprintf('The system is not controllable\n')
+else
+    fprintf('The system is controllable\n')
+end
+
+%% Step 8: Check for Observability
+% To find the observability of the system, a observation matrix must be
+% calculated. Comparing the rank of this matrix with the length of the A
+% matrix will determine observability. 
+%
+% $$ Unobservable - obsvRank < length(A) $$
+
+obsv_b = obsv(A_b,C_b);
+obsv_b_rank = rank(obsv_b);
+
+if obsv_b_rank < length(A_b)
+    fprintf('The system is not observable\n')
+else
+    fprintf('The system is observable\n')
+end
+
+%% Step 9:  Transform into Canonical Form
+% Transforming the state-space matrixes into CCF and OCF.
+sys = ss(A_b, B_b, C_b, D_b);
+CCF = compreal(sys,"c");
+CCF.A = CCF.A';
+CCF.B = flip(CCF.B);
+CCF.C(1,:) = flip(tfnum(1,2:5));
+CCF.C(2,:) = flip(tfnum(2,2:5));
+CCF.C(3,:) = flip(tfnum(3,2:5));
+CCF.C(4,:) = flip(tfnum(4,2:5));
+
+OCF = ss(CCF.A',CCF.C',CCF.B',CCF.D');
+
+disp('A Obs:');disp(OCF.A);
+disp('A Cont:');disp(CCF.A);
+
+%% Step 10: Designing State Estimator with Pole Placement 
+% Since the system is unstable, a closed-loop state estimator will be
+% added. This full-dimensional observer will have poles that produce a
+% stable system, by placing them all in the negative feild. As it is
+% estimating the state of the system, these poles are picked to have a
+% faster settling time than the open-loop system. An estimator gain _L_ is
+% calculated.
+
+% Try ~8 times faster than
+% system?????????????????????????????????????????????????????????????????????
+desiredPoles = [-24+0.1j,-24-0.1j, -20, -10]*1.5;
+%%
+% Estimator gain _L_ using desired pole placement
+L = place(A_b', C_b', desiredPoles)';
+disp('Estimator Gain L:'); disp(L);
+%%
+% Verify the pole placement
+A_obs = A_b - L*C_b;
+disp("New Poles: ");disp(eig(A_obs));
+
+%% Step 11: State Estimator Simulink
+%Plot the estimated state-variables and output variables on the same graph.
+%I think this counts, but being fair and asking?????????????????????????
+
+% A simulink model of the linearized system was developed. The output of
+% the system is fed into the full-dimensional observer. To demonstrate the
+% values of the system, an input of a unit-step is used, while also
+% assuming the initial conditions are zero.
+sim("StateEstimator_project");
+figure(1);
+subplot(2,1,1);
+plot(t, x, 'LineWidth', 2);
+hold on;
+plot(t,xhat, '*-');
+grid on;
+xlabel('time (sec)');
+legend('x_1', 'x_2', 'x_3','x_4', 'x_1_,_o_b_s', 'x_2_,_o_b_s', ... 
+'x_3_,_o_b_s','x_4_,_o_b_s'); 
+title('System & Observer Step Input');
+subplot(2,1,2);
+plot(t, y, '-');
+grid on;
+xlabel('time (sec)');
+legend('y_1','y_2','y_3','y_4'); 
+%%
+% The graphs show that the system is unstable as the values go off to
+% infinity. 
+
+%% Step 12: Feedback via Pole Placement
+% To make the system stable, new poles are selected for the closed-loop
+% model. With the new poles, a proportional gain _K_ can be calculated for
+% the closed-loop modeling. While this gain will be faster than the
+% open-loop system, it will be slower than the observer system.
+
+desiredPropGainPoles = [-21, -17, -14, -10];
+K_pg = place(A_b, B_b, desiredPropGainPoles);
+
+disp("Step 12- Proportional Gain Matrix: "); disp(K_pg);
+
+%% Step 13: Closing the Feedback Loop
+% Using the proportional gain _K_, a new state-space matrix must be created to
+% represent the closed-loop system. This new system must then be checked if
+% the new poles allow it to be stable.
+Acl = A_b - B_b*K_pg;
+charPoly_cl = charpoly(Acl);
+disp("Closed Loop Charactaristic Polynomial: ");disp(charPoly_cl);
+
+eigenValues_cl = eig(Acl);
+disp("Closed Loop Eigenvalues: ");disp(eigenValues_cl);
+
+if eigenValues_cl < 0
+    fprintf('The system is asymptotically stable\n')
+else
+    fprintf('The system is not asymptotically stable\n')
+end
+
+%% Step 14: Feedback Simulink Model and Step Response
+% A simulink model of the linearized closed-loop system was developed,
+% without the state-estimator. Applying the proportional gain _K_ to the
+% system as feed back. To demonstrate the values of the system, an input of
+% a unit-step is used while also assuming the initial conditions are zero.
+sim("ProportionalGainController_NO_ESTIMATOR_project");
+figure(2);
+plot(t, y, 'LineWidth',2.5);
+grid;
+title("Proportional Gain Controller (No State Estimator)");
+legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l')
+xlabel('Time (sec)')
+
+
+
+%% Step 15: Estimator With Feedback
+% By combining the observer system with the feedback model, the entire
+% system can become a closed-loop model that is based on the estimated
+% states, _xhat_. The system will be stable with the new poles.
+%%
+% The error of the system is ploted with the difference between _x_ and
+% _xhat_. 
+sim("ProportionalGainController_w_Estimator_project");
+figure(3);
+subplot(2,1,1);
+plot(t, y, 'LineWidth',2.5);
+grid;
+title("Proportional Gain Controller (State Estimator)");
+legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l');
+xlabel('Time (sec)');
+subplot(2,1,2);
+plot(t, x_e, '-');
+grid on;
+title("Error of states (x - xhat)");
+xlabel('time (sec)');
+legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l'); 
+%%
+%The low error values show that this closed-loop estimator system is
+%accurate for all the states.
+
+%% Step 16: PID Tuning
+% A) Demonstrate the feedback control system using an LQR controller.
+% B) Demonstrate the feedback control system using a PID controller (You could try PI, PD, and PID.).
+% Using the model below, we can use MATLAB's built in PID functions to give
+% us our proportional, integral, and derivative gains. Additionally we can
+% calculate the poles and zeros to see if the system with PID feedback is
+% stable.
+
+
+
+%% Step 17: LQR Tuning
+% Another method of creating the feedback system is to use an LQR
+% controller. By selecting the _R_ and _Q_ values, a new feedback _K_ can
+% be calculated. The MinSeg robot uses this method for operating.
+R = [75];
+
+Q = diag([10000, 1, 500000, 5000]);
+KLQR = lqr(A_b, B_b, Q, R);
+disp("KLQR: ");disp(KLQR);
+
+lqr_poles = eig(A_b - B_b*KLQR)
+
+K_pg = KLQR;
+
+sim("ProportionalGainController_NO_ESTIMATOR_project");
+figure(4);
+plot(t, y, 'LineWidth',2.5);
+grid;
+title("LQR (State Estimator)");
+legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l');
+xlabel('Time (sec)');
+
+%% Step 18: Sonar Sensor
+% Use a sonar sensor to implement some type of feedback control. 
+% One option would be to implement an alert system on the balancing MinSeg robot, 
+% which generates sound as the distance between MinSeg robot and an object is less 
+% than certain threshold by using an ultrasonic sensor and a speaker. 
+% As the balancing robot approaches an object, the alert system should 
+% increase the volume, frequency, or tone of an alerting sound. 
+% This part is open for you to be creative to use the sonar sensor. 
+% Demonstrate this in a video or live during the project presentation.
+
+
+
+
+
+##### SOURCE END #####
+-->
+</body>
+</html>
