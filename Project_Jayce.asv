@@ -1,5 +1,5 @@
 %% Minseg Robot Control Project EEP 547
-% Team Names: Jayce Gaddis, Matthew Russo
+% Team Names: Jayce Gaddis & Matthew Russo
 
 %% Minseg Parameters
 %Initializing
@@ -51,7 +51,7 @@ C_b = eye(size(A_b));
 D_b = [0;0;0;0];
 
 %% Step 2: Measurements of Minseg
-% Measure the physical parameters of our MinSeg system. The _kt_, _Kb_, and
+% Measurements the physical parameters of our MinSeg system. The _kt_, _Kb_, and
 % _R_ values were provided for us. The rest of the parameters were
 % calculated using various methods. While lengths and masses were measured
 % with rulers and scales, the hardest to calculate was the moment of
@@ -61,6 +61,9 @@ D_b = [0;0;0;0];
 % acceleration of the wheel. That acceleration was used to backcalculated
 % the the inertia. The pendulum's inertia was calculated by using an
 % equation with relation to its length and mass.
+% 
+% While there are values for both with and without batteries connected,
+% this project operates without the use of batteries.
 
 % Without Battery			
 %  Length to CoG (with wheels)	L	95.83	mm
@@ -125,10 +128,10 @@ disp("B= ");disp(B_b);
 
 [tfnum,tfden] = ss2tf(A_b,B_b,C_b,D_b);
 
-tf1 = tf(tfnum(1,:),tfden);
-tf2 = tf(tfnum(2,:),tfden);
-tf3 = tf(tfnum(3,:),tfden);
-tf4 = tf(tfnum(4,:),tfden);
+tf1 = tf(tfnum(1,:),tfden)
+tf2 = tf(tfnum(2,:),tfden)
+tf3 = tf(tfnum(3,:),tfden)
+tf4 = tf(tfnum(4,:),tfden)
 
 %% Step 4: Characteristic Polynomial and Eigenvalues
 % The characteristic polynomial and eigenvalues of matrix A.
@@ -158,7 +161,7 @@ end
 % the poles are the same value. Since a single pole is positive, the system
 % is not BIBO stable.
 
-poles_tf1 = pole(tf1);
+poles_tf1 = pole(tf1)
 
 if poles_tf1 < 0
     fprintf('The system is BIBO stable\n')
@@ -171,7 +174,8 @@ end
 % To find the controllability of the system, a control matrix must be
 % calculated. Comparing the rank of this matrix with the length of the A
 % matrix will determine controllability. 
-% Uncontrollable - $$ ctrb_rank < length(A) $$
+%
+% $$ Uncontrollable - ctrbRank < length(A) $$
 
 ctrb_b = ctrb(A_b,B_b);
 ctrb_b_rank = rank(ctrb_b);
@@ -186,7 +190,8 @@ end
 % To find the observability of the system, a observation matrix must be
 % calculated. Comparing the rank of this matrix with the length of the A
 % matrix will determine observability. 
-% Unobservable - $$ obsv_rank < length(A) $$
+%
+% $$ Unobservable - obsvRank < length(A) $$
 
 obsv_b = obsv(A_b,C_b);
 obsv_b_rank = rank(obsv_b);
@@ -213,50 +218,69 @@ OCF = ss(CCF.A',CCF.C',CCF.B',CCF.D');
 disp('A Obs:');disp(OCF.A);
 disp('A Cont:');disp(CCF.A);
 
-%% Step 10: Designing State Estimator with Pole Placement
-% Develop a closed-loop state estimator (full-dimensional observer) for the open-loop system (no feedback
-% yet) such that the poles of the observer are stable, and the dynamics of the observer is at least 6-8 times
-% faster than the dynamics of the linearized model. Include in your report the value of the estimator gain, L.
+%% Step 10: Designing State Estimator with Pole Placement 
+% Since the system is unstable, a closed-loop state estimator will be
+% added. This full-dimensional observer will have poles that produce a
+% stable system, by placing them all in the negative feild. As it is
+% estimating the state of the system, these poles are picked to have a
+% faster settling time than the open-loop system. An estimator gain _L_ is
+% calculated.
 
-% Try ~8 times faster than system
+% Try ~8 times faster than
+% system?????????????????????????????????????????????????????????????????????
 desiredPoles = [-24+0.1j,-24-0.1j, -20, -10]*1.5;
 
-% Calculate the estimator gain L using pole placement
+% Estimator gain L using desired pole placement
 L = place(A_b', C_b', desiredPoles)';
 disp('Estimator Gain L:'); disp(L);
 
-% Verify the Pole placement
+% Verify the pole placement
 A_obs = A_b - L*C_b;
 disp("New Poles: ");disp(eig(A_obs));
 
 %% Step 11: State Estimator Simulink
-% Develop a Simulink model of the linearized system (open-loop system with full-dimensional observer
-% designed above). Add the state estimator derived in previous step to your Simulink model and set the initial
-% conditions of the state estimator to 𝑥M0 = [0 0 0 0]. Simulate the behavior of the system when a unit-step
-% u(t) = 1, t ≥ 0 is applied at the input. Plot the estimated state-variables and output variables on the same
-% graph.
+%Plot the estimated state-variables and output variables on the same graph.
+%I think this counts, but being fair and asking?????????????????????????
+
+% A simulink model of the linearized system was developed. The output of
+% the system is fed into the full-dimensional observer. To demonstrate the
+% values of the system, an input of a unit-step is used, while also
+% assuming the initial conditions are zero.
 sim("StateEstimator_project");
 figure(1);
-plot(t, x, 'LineWidth', 2.5);
+subplot(2,1,1);
+plot(t, x, 'LineWidth', 2);
 hold on;
 plot(t,xhat, '*-');
 grid on;
 xlabel('time (sec)');
-title('Observer Step Input');
+legend('x_1', 'x_2', 'x_3','x_4', 'x_1_,_o_b_s', 'x_2_,_o_b_s', ... 
+'x_3_,_o_b_s','x_4_,_o_b_s'); 
+title('System & Observer Step Input');
+subplot(2,1,2);
+plot(t, y, '-');
+grid on;
+xlabel('time (sec)');
+legend('y_1','y_2','y_3','y_4'); 
+
+% The graphs show that the system is unstable as the values go off to
+% infinity. 
 
 %% Step 12: Feedback via Pole Placement
-% Consider the case when the linearized system is stabilized by using feedback control. Using the pole
-% placement method, via MATLAB, develop a proportional controller such that the poles of the closed-loop
-% system are stable, and the dynamics of the closed-loop model is at least 4-6 times faster than the dynamics
-% of the open-loop model. Include in your report the value of the proportional gain, K.
+% To make the system stable, new poles are selected for the closed-loop
+% model. With the new poles, a proportional gain _K_ can be calculated for
+% the closed-loop modeling. While this gain will be faster than the
+% open-loop system, it will be slower than the observer system.
+
 desiredPropGainPoles = [-21, -17, -14, -10];
 K_pg = place(A_b, B_b, desiredPropGainPoles);
 
 disp("Step 12- Proportional Gain Matrix: "); disp(K_pg);
 
 %% Step 13: Closing the Feedback Loop
-% Derive the state-space representation of the closed-loop system. Find the characteristic polynomial and the
-% eigenvalues of the closed-loop system. Is this closed-loop system asymptotically stable?
+% Using the proportional gain _K_, a new state-space matrix must be created to
+% represent the closed-loop system. This new system must then be checked if
+% the new poles allow it to be stable.
 Acl = A_b - B_b*K_pg;
 charPoly_cl = charpoly(Acl);
 disp("Closed Loop Charactaristic Polynomial: ");disp(charPoly_cl);
@@ -271,12 +295,10 @@ else
 end
 
 %% Step 14: Feedback Simulink Model and Step Response
-% Develop a Simulink model of the linearized closed-loop system (no estimator) when the output of the
-% system equals state variables 𝑦 = 𝑥=[ 𝛼 𝛼̇ 𝑥 𝑥̇]/. Add the proportional controller developed above to the
-% Simulink model and simulate the response of the closed-loop system when a unit step u(t) = 1, t ≥ 0 is
-% applied. Plot all the outputs on the same graph.
-% Create a simulink model of the system with full state feedback and the
-% gains calculated previously.
+% A simulink model of the linearized closed-loop system was developed,
+% without the state-estimator. Applying the proportional gain _K_ to the
+% system as feed back. To demonstrate the values of the system, an input of
+% a unit-step is used while also assuming the initial conditions are zero.
 sim("ProportionalGainController_NO_ESTIMATOR_project");
 figure(2);
 plot(t, y, 'LineWidth',2.5);
@@ -291,14 +313,30 @@ xlabel('Time (sec)')
 % Combine the proportional feedback controller with the state estimator from 4.3 and 4.4 in Simulink.
 % Simulate the system in to analyze its performance. Try using the estimator for states not measured (this will
 % change your y(t)). Plot the error function and discuss your results.
+
+% By combining the observer system with the feedback model, the entire
+% system can become a closed-loop model that is based on the estimated
+% states, _xhat_. The system will be stable with the new poles.
+
+% The error of the system is ploted with the difference between _x_ and
+% _xhat_. 
 sim("ProportionalGainController_w_Estimator_project");
 figure(3);
+subplot(2,1,1);
 plot(t, y, 'LineWidth',2.5);
 grid;
 title("Proportional Gain Controller (State Estimator)");
 legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l');
 xlabel('Time (sec)');
+subplot(2,1,2);
+plot(t, x_e, '-');
+grid on;
+title("Error of states (x - xhat)");
+xlabel('time (sec)');
+legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l'); 
 
+%The low error values show that this closed-loop estimator system is
+%accurate for all the states.
 
 %% Step 16: PID Tuning
 % A) Demonstrate the feedback control system using an LQR controller.
@@ -315,6 +353,8 @@ xlabel('Time (sec)');
 % Show that the LQR controller balances your MinSeg robot. 
 % Show you separate Simulink model. 
 % This can be demonstrated in a video and live during the project presentation.
+
+% 
 R = [75];
 
 Q = diag([10000, 1, 500000, 5000]);
