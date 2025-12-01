@@ -1,1 +1,26 @@
 MinSegDemo.mp4
+# Simulink project caches & generated code
+slprj/
+html/
+*.slxc
+*.mexw*
+*.tlc
+*_wrapper.*
+*_cgxe.*
+*.r201*
+*.autosave
+
+# Embedded target binaries / firmware output
+*.elf
+*.hex
+*.eep
+
+# Simulation and temp data
+*.mat
+*.asv
+*.log
+*.tmp
+
+# System files
+.DS_Store
+Thumbs.db

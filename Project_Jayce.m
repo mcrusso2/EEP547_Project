@@ -227,9 +227,10 @@ disp('A Cont:');disp(CCF.A);
 % faster settling time than the open-loop system. An estimator gain _L_ is
 % calculated.
 
-% Try ~8 times faster than
-% system?????????????????????????????????????????????????????????????????????
-desiredPoles = [-24+0.1j,-24-0.1j, -20, -10]*1.5;
+% Try ~6 times faster than
+% system negative pole is hightly stable so focus on poles with amplitudes
+% near 6
+desiredPoles = [-36, -30, -24, -20];
 %%
 % Estimator gain _L_ using desired pole placement
 L = place(A_b', C_b', desiredPoles)';
@@ -241,7 +242,6 @@ disp("New Poles: ");disp(eig(A_obs));
 
 %% Step 11: State Estimator Simulink
 %Plot the estimated state-variables and output variables on the same graph.
-%I think this counts, but being fair and asking?????????????????????????
 %what I mean here is that esimated state and output are on different
 %graphs.
 
@@ -275,7 +275,7 @@ legend('y_1','y_2','y_3','y_4');
 % the closed-loop modeling. While this gain will be faster than the
 % open-loop system, it will be slower than the observer system.
 
-desiredPropGainPoles = [-21, -17, -14, -10];
+desiredPropGainPoles = [-24, -18, -16, -12];
 K_pg = place(A_b, B_b, desiredPropGainPoles);
 
 disp("Step 12- Proportional Gain Matrix: "); disp(K_pg);
@@ -307,7 +307,7 @@ figure(2);
 plot(t, y, 'LineWidth',2.5);
 grid;
 title("Proportional Gain Controller (No State Estimator)");
-legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l')
+legend('a_p_o_s', 'a_v_e_l', 'x_p_o_s', 'x_v_e_l')
 xlabel('Time (sec)')
 
 
@@ -325,14 +325,14 @@ subplot(2,1,1);
 plot(t, y, 'LineWidth',2.5);
 grid;
 title("Proportional Gain Controller (State Estimator)");
-legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l');
+legend( 'a_p_o_s', 'a_v_e_l', 'x_p_o_s', 'x_v_e_l');
 xlabel('Time (sec)');
 subplot(2,1,2);
 plot(t, x_e, '-');
 grid on;
 title("Error of states (x - xhat)");
 xlabel('time (sec)');
-legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l'); 
+legend('a_p_o_s', 'a_v_e_l', 'x_p_o_s', 'x_v_e_l'); 
 %%
 %The low error values show that this closed-loop estimator system is
 %accurate for all the states.
@@ -345,15 +345,37 @@ legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l');
 % calculate the poles and zeros to see if the system with PID feedback is
 % stable.
 
+C_siso = [1 0 1 0];
+D_siso = 0;
+pid_sys = ss(A_b, B_b, C_siso, D_siso);
+pid_params = pidtune(pid_sys,'PI')
 
+%%
+% The above PID parameters did not result in a very stable system so
+% instead, the following tuning method was applied. 
+% First, P was tuned with I and D set to 0. P was increased starting at 0.1
+% until the system began to oscillate continuously on it's own. This
+% occured at P = 0.5.
+% Next, D was tuned up until the oscillations were dampened. Then the
+% parameter was slightly decreased to allow some oscillations. This occured
+% at D = 0.5 * 0.001
+% Lastly, I was tuned up until the oscillations just started to occur
+% again.
+% The resulting system can hold it's stability for a short while when set
+% up in a balanced initial state but has trouble recovering to any small
+% bump
 
 %% Step 17: LQR Tuning
 % Another method of creating the feedback system is to use an LQR
 % controller. By selecting the _R_ and _Q_ values, a new feedback _K_ can
 % be calculated. The MinSeg robot uses this method for operating.
-R = [75];
 
-Q = diag([10000, 1, 500000, 5000]);
+% Want a semi fast response time but don't want to over do it.
+R = [0.2];
+
+% Alpha is important for stability but we also don't want long term x drift
+% therefore the x weighting was raised so that the robot won't run away
+Q = diag([100, 10, 1000, 1]);
 KLQR = lqr(A_b, B_b, Q, R);
 disp("KLQR: ");disp(KLQR);
 
@@ -366,7 +388,7 @@ figure(4);
 plot(t, y, 'LineWidth',2.5);
 grid;
 title("LQR (State Estimator)");
-legend('x_p_o_s', 'x_v_e_l', 'a_p_o_s', 'a_v_e_l');
+legend('a_p_o_s', 'a_v_e_l', 'x_p_o_s', 'x_v_e_l');
 xlabel('Time (sec)');
 
 %% Step 18: Sonar Sensor
