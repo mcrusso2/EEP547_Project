@@ -1,27 +1,2 @@
 MinSegDemo.mp4
-# MATLAB autosave and backup files
-*.asv
-*.m~
 
-# Compiled MEX binaries (all platforms)
-*.mex*
-
-# Simulink Code Generation
-slprj/
-
-# Simulink autosave extension
-.autosave
-
-# MATLAB preferences and layout files
-matlab.prf
-matlab.mat
-
-# Other potential temporary or generated files
-*.log
-*.tmp
-*.bak
-*.slxc
-*.eep
-*.hex
-*.elf
-*_cache.xml
