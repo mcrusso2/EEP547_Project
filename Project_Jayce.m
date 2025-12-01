@@ -228,7 +228,7 @@ disp('A Cont:');disp(CCF.A);
 % calculated.
 
 % Try ~6 times faster than
-% system negative pole is hightly stable so focus on poles with amplitudes
+% system negative pole is highly stable so focus on poles with amplitudes
 % near 6
 desiredPoles = [-36, -30, -24, -20];
 %%
@@ -338,8 +338,6 @@ legend('a_p_o_s', 'a_v_e_l', 'x_p_o_s', 'x_v_e_l');
 %accurate for all the states.
 
 %% Step 16: PID Tuning
-% A) Demonstrate the feedback control system using an LQR controller.
-% B) Demonstrate the feedback control system using a PID controller (You could try PI, PD, and PID.).
 % Using the model below, we can use MATLAB's built in PID functions to give
 % us our proportional, integral, and derivative gains. Additionally we can
 % calculate the poles and zeros to see if the system with PID feedback is
@@ -362,7 +360,7 @@ pid_params = pidtune(pid_sys,'PI')
 % Lastly, I was tuned up until the oscillations just started to occur
 % again.
 % The resulting system can hold it's stability for a short while when set
-% up in a balanced initial state but has trouble recovering to any small
+% up in a balanced initial state, but has trouble recovering to any small
 % bump
 
 %% Step 17: LQR Tuning
@@ -373,8 +371,8 @@ pid_params = pidtune(pid_sys,'PI')
 % Want a semi fast response time but don't want to over do it.
 R = [0.2];
 
-% Alpha is important for stability but we also don't want long term x drift
-% therefore the x weighting was raised so that the robot won't run away
+% Alpha is important for stability, but we also don't want long term _x_ drift
+% therefore the _x_ weighting was raised so that the robot won't run away
 Q = diag([100, 10, 1000, 1]);
 KLQR = lqr(A_b, B_b, Q, R);
 disp("KLQR: ");disp(KLQR);
