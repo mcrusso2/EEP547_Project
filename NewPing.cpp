@@ -7,12 +7,16 @@
 
 #include "NewPing.h"
 
+//uint8_t trigger_pin;
+//uint8_t echo_pin;
 
 // ---------------------------------------------------------------------------
 // NewPing constructor
 // ---------------------------------------------------------------------------
 
 NewPing::NewPing(uint8_t trigger_pin, uint8_t echo_pin, int max_cm_distance) {
+//NewPing::NewPing(int max_cm_distance) {
+	
 	_triggerBit = digitalPinToBitMask(trigger_pin); // Get the port register bitmask for the trigger pin.
 	_echoBit = digitalPinToBitMask(echo_pin);       // Get the port register bitmask for the echo pin.
 

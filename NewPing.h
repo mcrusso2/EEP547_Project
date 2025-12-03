@@ -144,7 +144,7 @@ class NewPing {
 		static void timer_us(unsigned int frequency, void (*userFunc)(void));
 		static void timer_ms(unsigned long frequency, void (*userFunc)(void));
 		static void timer_stop();
-	private:
+	//private:  made public so pin numbers can be modified in initialization code.
 		boolean ping_trigger();
 		boolean ping_wait_timer();
 		uint8_t _triggerBit;
