@@ -227,9 +227,6 @@ disp('A Cont:');disp(CCF.A);
 % faster settling time than the open-loop system. An estimator gain _L_ is
 % calculated.
 
-% Try ~6 times faster than
-% system negative pole is highly stable so focus on poles with amplitudes
-% near 6
 desiredPoles = [-36, -30, -24, -20];
 %%
 % Estimator gain _L_ using desired pole placement
