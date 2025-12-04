@@ -151,7 +151,7 @@ disp("Eigenvalues: ");disp(eigA_b);
 % negative, while one is positive. This positive eignvalue is the reason the
 % system in unstable.
 
-if eigA_b < 0
+if all(real(eigA_b) < 0)
     fprintf('The system is asymptotically stable\n')
 else
     fprintf('The system is not asymptotically stable\n')
@@ -164,7 +164,7 @@ end
 
 poles_tf1 = pole(tf1)
 
-if poles_tf1 < 0
+if all(real(poles_tf1) < 0)
     fprintf('The system is BIBO stable\n')
 else
     fprintf('The system is not BIBO stable\n')
