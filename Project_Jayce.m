@@ -396,6 +396,9 @@ xlabel('Time (sec)');
 % This part is open for you to be creative to use the sonar sensor. 
 % Demonstrate this in a video or live during the project presentation.
 
-
+%%
+% The sonar sensor was implemented to add a small offset to the x position
+% when an object is detected nearby causing the robot to move away from the
+% sensor.
 
 
